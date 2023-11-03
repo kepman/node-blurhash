@@ -1,7 +1,7 @@
 # Development stage
 FROM node:19 as development
 WORKDIR /usr
-COPY package*.json tsconfig.json ./
+COPY package*.json ./
 RUN npm install
 COPY ./ ./
 CMD [ "npm", "run", "start:dev" ]
