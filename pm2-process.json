@@ -1,0 +1,9 @@
+{
+  "script": "index.js",
+  "watch": true,
+  "ignore_watch": ["uploads", "node_modules"],
+  "watch_options": {
+    "followSymlinks": false
+  },
+  "name": "blurhash"
+}
