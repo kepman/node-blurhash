@@ -1,5 +1,6 @@
 # Development stage
-FROM node:19 as development
+FROM node:19-bullseye as development
+RUN apk --no-cache add nodejs ca-certificates build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 WORKDIR /usr
 COPY package*.json ./
 RUN npm install
@@ -17,7 +18,7 @@ RUN npm ci --only=production
 
 # Production stage
 FROM alpine:latest as production
-RUN apk --no-cache add nodejs ca-certificates
+RUN apk --no-cache add nodejs ca-certificates build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 WORKDIR /root/
 COPY --from=builder /usr ./
-CMD [ "node", "./build/index.js" ]
+CMD [ "node", "./index.js" ]
