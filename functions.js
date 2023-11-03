@@ -1,5 +1,6 @@
 const fs = require('fs');
-const { createCanvas, loadImage, Image } = require('canvas');
+// const { createCanvas, loadImage, Image } = require('canvas');
+const probe = require('probe-image-size');
 const { encode, decode, isBlurhashValid } = require("blurhash");
 const nodejs_md5 = require('nodejs-md5');
 const sharp = require('sharp');
@@ -7,16 +8,38 @@ const Magic = require('@picturae/mmmagic');
 /**
  * Retrieve Image from path or url
  */
-const getImage = async (url) => loadImage(url)
+const getImage = async (path) => {
+  console.log("get path:", path)
+  return new Promise(async (resolve, reject) => {
+    let result = await probe(fs.createReadStream("./" + path) || path);
+    sharp("./" + path)
+      .raw()
+      .ensureAlpha()
+      .resize(32, 32, { fit: "inside" })
+      .toBuffer((err, buffer, { width, height }) => {
+        if (err) return reject(err);
+        resolve({
+          width: width,
+          height: height,
+          dwidth: result.width,
+          dheight: result.height,
+          data: new Uint8ClampedArray(buffer)
+        });
+      });
+  })
+}
 
 /**
  * Load Image Data from image URL or file
  */
-const getImageData = (image) => {
-  const canvas = createCanvas(image.width, image.height)
-  const context = canvas.getContext('2d')
-  context.drawImage(image, 0, 0)
-  return context.getImageData(0, 0, image.width, image.height)
+const getImageData = async (image) => {
+  let result = await probe(image);
+  return result;
+  // const canvas = createCanvas(image.width, image.height)
+  // const context = canvas.getContext('2d')
+  // context.drawImage(image, 0, 0)
+  // return context.getImageData(0, 0, image.width, image.height)
+  // test
 }
 
 /**
@@ -134,17 +157,18 @@ const processBlurHashRequest = async (req, res) => {
   if (parseInt(process.env.MAX_FILE_SIZE) <= req.file.size) { throwError(400, 'File too large! Max allowed size: ' + (process.env.MAX_FILE_SIZE / 1000) + 'KB', req, res); return; }
   
   // all conditions passed so now generate the blurhash ====>
+  console.log(req.file)
   const image = await getImage(req.file.path)
-  const imageData = getImageData(image);
+  // const imageData = getImageData(image);
   const fileMd5 = await md5File(req.file.path);
-  const blurHash = await blurHashEncode(imageData);
+  const blurHash = await blurHashEncode(image);
 
   const output = {
     blurhash: blurHash,
     info: {
       file_name: req.file.originalname,
-      image_width: imageData.width,
-      image_height: imageData.height,
+      image_width: image.dwidth,
+      image_height: image.dheight,
       file_mime: fileType,
       file_md5: fileMd5,
       file_size: req.file.size,
@@ -182,9 +206,9 @@ const processDecodeRequest = async (req, res) => {
   );
 
   res.status(200);
-  res.send(JSON.stringify({
-    decoded: decoded
-  }))
-  // res.send(`<img src="${decoded}" style="width: 100%; height: auto;" />`)
+  // res.send(JSON.stringify({
+  //   decoded: decoded
+  // }))
+  res.send(`<img src="${decoded}" style="width: 100%; height: auto;" />`)
 }
 exports.processDecodeRequest = processDecodeRequest;
