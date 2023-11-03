@@ -1,10 +1,10 @@
 const fs = require('fs');
-// const { createCanvas, loadImage, Image } = require('canvas');
 const probe = require('probe-image-size');
 const { encode, decode, isBlurhashValid } = require("blurhash");
 const nodejs_md5 = require('nodejs-md5');
 const sharp = require('sharp');
 const Magic = require('@picturae/mmmagic');
+
 /**
  * Retrieve Image from path or url
  */
@@ -27,19 +27,6 @@ const getImage = async (path) => {
         });
       });
   })
-}
-
-/**
- * Load Image Data from image URL or file
- */
-const getImageData = async (image) => {
-  let result = await probe(image);
-  return result;
-  // const canvas = createCanvas(image.width, image.height)
-  // const context = canvas.getContext('2d')
-  // context.drawImage(image, 0, 0)
-  // return context.getImageData(0, 0, image.width, image.height)
-  // test
 }
 
 /**
@@ -70,7 +57,7 @@ const blurHashDecode = async (hash, width, height, options = { size: 16, quality
       overshootDeringing: true,
       quality: options.quality,
     })
-    .toBuffer(); // Here also possible to do whatever with your image, e.g. save it or something else.
+    .toBuffer();
 
   return `data:image/jpeg;base64,${resizedImageBuf.toString("base64")}`;
 }
@@ -206,9 +193,9 @@ const processDecodeRequest = async (req, res) => {
   );
 
   res.status(200);
-  // res.send(JSON.stringify({
-  //   decoded: decoded
-  // }))
-  res.send(`<img src="${decoded}" style="width: 100%; height: auto;" />`)
+  res.send(JSON.stringify({
+    decoded: decoded
+  }))
+  // res.send(`<img src="${decoded}" style="width: 100%; height: auto;" />`)
 }
 exports.processDecodeRequest = processDecodeRequest;
