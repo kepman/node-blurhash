@@ -64,9 +64,9 @@ DEBUG=false
 PORT=3000
 MAX_FILE_SIZE=1000000
 ```
-| Key | Value | Description |
+| Key | Default | Description |
 | --- | --- | --- |
-| DEBUG | true / false | debug mode to output console.log |
+| DEBUG | false | debug mode to output console.log |
 | PORT | 3000 | port in which the express server will listen to |
 | MAX_FILE_SIZE | 1000000 | uploaded image max file size in bytes |
 
