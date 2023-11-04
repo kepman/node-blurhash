@@ -2,7 +2,7 @@
 
 
 A NodeJS implementation of [Blurhash](https://github.com/woltapp/blurhash).
-The API is ready to use out of the box (either local or on a server):
+The API is ready to be used out of the box (either local or on a server):
 - encoding an uploaded image into a blurhash
 - decoding a blurhash to generate a preview of the blur image 
 (image preview will be a data uri scheme:  data:image/jpeg;base64,... )
@@ -55,6 +55,20 @@ Send POST request "{appurl}/decode" with Content-Type: multipart/form-data;
   "decoded": "data:image/jpeg;base64,..."
 }
 ```
+
+## Configuration
+```sh
+file: .env
+
+DEBUG=false
+PORT=3000
+MAX_FILE_SIZE=1000000
+```
+| Key | Value | Description |
+| --- | --- | --- |
+| DEBUG | true / false | debug mode to output console.log |
+| PORT | 3000 | port in which the express server will listen to |
+| MAX_FILE_SIZE | 1000000 | uploaded image max file size in bytes |
 
 ## Postman collection
 For those of you who use postman here is the [Postman collection](https://github.com/kepman/node-blurhash/blob/master/Blurhash.postman_collection.json).
