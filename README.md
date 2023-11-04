@@ -1,7 +1,7 @@
 # node-blurhash
 
 
-A NodeJS implementation of [Blurhash][https://github.com/woltapp/blurhash].
+A NodeJS implementation of [Blurhash](https://github.com/woltapp/blurhash).
 The API is ready to use out of the box (locally / server):
 - encoding an uploaded image into a blurhash
 - decoding a blurhash to generate a preview of the blur image
@@ -11,5 +11,5 @@ Blurhash is an algorithm written by [Dag Ågren](https://github.com/DagAgren) fo
 ## Installation
 (clone repo and run using npm/yarn or any other package manager)
 ```sh
-$ git clone https://github.com/kepman/node-blurhash
+git clone https://github.com/kepman/node-blurhash
 ```
