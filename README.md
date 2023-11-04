@@ -19,7 +19,7 @@ git clone https://github.com/kepman/node-blurhash
 ## Usage
 
 ### Encoding an image to retreive the Blurhash
-Send POST request with Content-Type: multipart/form-data;
+Send POST request "{appurl}" with Content-Type: multipart/form-data;
 | Key | Value | Required | Description |
 | --- | --- | --- | --- |
 | uploaded_file | File | yes | Uploaded image |
@@ -44,7 +44,7 @@ Example response json:
 - file_md5: the md5 of a file using [nodejs-md5](https://github.com/heinst/nodejs-md5). Regardless the filename if it is the same file, it will give the same md5.
 
 ### Decoding a Blurhash
-Send POST request with Content-Type: multipart/form-data;
+Send POST request "{appurl}/decode" with Content-Type: multipart/form-data;
 | Key | Value | Required | Description |
 | --- | --- | --- | --- |
 | blurhash | String | yes | Blurhash string |
