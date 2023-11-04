@@ -9,7 +9,6 @@ const Magic = require('@picturae/mmmagic');
  * Retrieve Image from path or url
  */
 const getImage = async (path) => {
-  console.log("get path:", path)
   return new Promise(async (resolve, reject) => {
     let result = await probe(fs.createReadStream("./" + path) || path);
     sharp("./" + path)
@@ -18,7 +17,7 @@ const getImage = async (path) => {
       .resize(32, 32, { fit: "inside" })
       .toBuffer((err, buffer, { width, height }) => {
         if (err) return reject(err);
-        resolve({
+        return resolve({
           width: width,
           height: height,
           dwidth: result.width,
@@ -34,7 +33,7 @@ const getImage = async (path) => {
  * imageData is the return of getImageData()
  */
 const blurHashEncode = async imageData => {
-  return encode(imageData.data, imageData.width, imageData.height, 4, 4)
+  return encode(imageData.data, imageData.width, imageData.height, 4, 4);
 };
 
 /**
@@ -43,22 +42,10 @@ const blurHashEncode = async imageData => {
 const blurHashDecode = async (hash, width, height, options = { size: 16, quality: 40 }) => {
   const hashWidth = options?.size;
   const hashHeight = Math.round(hashWidth * (height / width));
-
   const pixels = decode(hash, hashWidth, hashHeight);
-
-  const resizedImageBuf = await sharp(Buffer.from(pixels), {
-    raw: {
-      channels: 4,
-      width: hashWidth,
-      height: hashHeight,
-    },
-  })
-    .jpeg({
-      overshootDeringing: true,
-      quality: options.quality,
-    })
+  const resizedImageBuf = await sharp(Buffer.from(pixels), {raw: { channels: 4, width: hashWidth, height: hashHeight}})
+    .jpeg({ overshootDeringing: true, quality: options.quality})
     .toBuffer();
-
   return `data:image/jpeg;base64,${resizedImageBuf.toString("base64")}`;
 }
 
@@ -66,39 +53,33 @@ const blurHashDecode = async (hash, width, height, options = { size: 16, quality
  * Get the md5 of a file
  */
 const md5File = async (file) => {
-  const getTheHash = () => {
-    return new Promise((resolve, reject) => {
-      nodejs_md5.file.quiet(file, (err, filemd5) => { 
-        if (err) {
-          console.error(err)
-          reject(err)
-        } else {
-          resolve(filemd5)
-        }
-      })
+  return new Promise((resolve, reject) => {
+    nodejs_md5.file.quiet(file, (err, filemd5) => {
+      if (err) {
+        if (process.env.DEBUG === 'true') console.error(err);
+        return reject(err);
+      } else {
+        return resolve(filemd5);
+      }
     })
-  }
-  return getTheHash();
+  })
 }
 
 /**
  * File detection using mmmagic to validate if it really is an image
  */
 const validateUploadedFile = (path) => {
-  const getTheMagic = () => {
-    return new Promise((resolve, reject) => {
-      const mm = new Magic.Magic(Magic.MAGIC_MIME_TYPE);
-      mm.detectFile(path, (err, result) => {
-        if (err) {
-          console.error(err)
-          reject(err)
-        } else {
-          resolve(result)
-        }
-      })
+  return new Promise((resolve, reject) => {
+    const mm = new Magic.Magic(Magic.MAGIC_MIME_TYPE);
+    mm.detectFile(path, (err, result) => {
+      if (err) {
+        console.error(err)
+        return reject(err)
+      } else {
+        return resolve(result)
+      }
     })
-  }
-  return getTheMagic();
+  })
 }
 
 /**
@@ -127,25 +108,20 @@ const throwError = (code, message, req, res) => {
  * Process POST request
  */
 const processBlurHashRequest = async (req, res) => {
-
   // set Content-Type response header to application/json
   const setHeaders = res.getHeaderNames();
   if (!setHeaders.includes("content-type")) res.setHeader('Content-Type', 'application/json');
-
   // check if no file received
   if (!req.file) {throwError(400, 'No file received', req, res); return;}
-
   // validate if it really is an image
-  const fileType = await validateUploadedFile(req.file.path)
+  const fileType = await validateUploadedFile(req.file.path);
   if (!fileType) {throwError(400, 'Failed to detect file type', req, res); return;}
   if ('image' !== fileType.slice(0, 5)) { throwError(400, 'Not an image', req, res); return; }
-  
   // check if the filesize is larger then allowed
   if (parseInt(process.env.MAX_FILE_SIZE) <= req.file.size) { throwError(400, 'File too large! Max allowed size: ' + (process.env.MAX_FILE_SIZE / 1000) + 'KB', req, res); return; }
-  
   // all conditions passed so now generate the blurhash ====>
-  console.log(req.file)
-  const image = await getImage(req.file.path)
+  if (process.env.DEBUG === 'true') console.log(req.file);
+  const image = await getImage(req.file.path);
   // const imageData = getImageData(image);
   const fileMd5 = await md5File(req.file.path);
   const blurHash = await blurHashEncode(image);
@@ -161,11 +137,10 @@ const processBlurHashRequest = async (req, res) => {
       file_size: req.file.size,
       file_size_human: (req.file.size / 1000).toFixed(0) + 'KB',
     }
-  }
+  };
   if (process.env.DEBUG === 'true') console.log("res.send(" + JSON.stringify(output, null, 2) + ");");
   res.status(200);
-  res.send(JSON.stringify(output))
-  
+  res.send(JSON.stringify(output));
   // delete the uploaded file
   if (req.file.path) removeUploadedFile(req.file.path);
   return;
@@ -176,12 +151,10 @@ const processDecodeRequest = async (req, res) => {
   // set Content-Type response header to application/json
   const setHeaders = res.getHeaderNames();
   if (!setHeaders.includes("content-type")) res.setHeader('Content-Type', 'application/json');
-
   // check if the blurhash is valid and is set 
   if (!req?.body?.blurhash) { throwError(400, 'No blurhash received', req, res); return; }
   const hashValid = isBlurhashValid(req?.body?.blurhash);
   if (!hashValid.result) { throwError(400, hashValid.errorReason, req, res); return; } 
-
   const decoded = await blurHashDecode(
     req.body.blurhash,
     (req?.body?.width ?? 640),
@@ -191,11 +164,10 @@ const processDecodeRequest = async (req, res) => {
       quality: parseInt(req?.body?.quality ?? 100)
     }
   );
-
   res.status(200);
   res.send(JSON.stringify({
     decoded: decoded
-  }))
+  }));
   // res.send(`<img src="${decoded}" style="width: 100%; height: auto;" />`)
 }
 exports.processDecodeRequest = processDecodeRequest;
