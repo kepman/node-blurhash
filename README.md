@@ -21,8 +21,8 @@ git clone https://github.com/kepman/node-blurhash
 ### Encoding an image to retreive the Blurhash
 Send POST request with Content-Type: multipart/form-data;
 | Key | Value | Required | Description |
-| --- | --- |
-| uploaded_file | File | YES | Uploaded image |
+| --- | --- | --- | --- |
+| uploaded_file | File | yes | Uploaded image |
 
 Example response json:
 ```json
@@ -47,9 +47,9 @@ Example response json:
 Send POST request with Content-Type: multipart/form-data;
 | Key | Value | Required | Description |
 | --- | --- | --- | --- |
-| blurhash | String | YES | Blurhash string |
-| width | Number | YES | width of the image |
-| height | Number | YES | height of the image |
+| blurhash | String | yes | Blurhash string |
+| width | Number | yes | width of the image |
+| height | Number | yes | height of the image |
 ```json
 {
   "decoded": "data:image/jpeg;base64,..."
