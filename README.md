@@ -50,6 +50,7 @@ Send POST request "{appurl}/decode" with Content-Type: multipart/form-data;
 | blurhash | String | yes | Blurhash string |
 | width | Number | yes | width of the image |
 | height | Number | yes | height of the image |
+| quality | Number (1-100)  | no | quality of the image |
 ```json
 {
   "decoded": "data:image/jpeg;base64,..."
