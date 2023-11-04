@@ -57,4 +57,4 @@ Send POST request "{appurl}/decode" with Content-Type: multipart/form-data;
 ```
 
 ## Postman collection
-For those of you who use postman here is the [Postman collection](https://github.com/kepman/node-blurhash/Blurhash.postman_collection.json).
+For those of you who use postman here is the [Postman collection](https://github.com/kepman/node-blurhash/blob/master/Blurhash.postman_collection.json).
