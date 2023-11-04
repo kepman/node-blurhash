@@ -20,7 +20,9 @@ git clone https://github.com/kepman/node-blurhash
 
 ### Encoding an image to retreive the Blurhash
 Send POST request with Content-Type: multipart/form-data;
-Expected key 'uploaded_file' with the image as file.
+| Key | Value | Required | Description |
+| --- | --- |
+| uploaded_file | File | YES | Uploaded image |
 
 Example response json:
 ```json
@@ -40,3 +42,16 @@ Example response json:
 - image_width & image_height: are the actual image size. Use these values also for decoding the blurhash to maintain the same aspect ratio.
 - file_mime is the actual mime type that is retreived from the file source using [@picturae/mmmagic](https://github.com/picturae/mmmagic). So even if the file extension is wrong the API will determine if the uploaded file is an image or not. Any non image files uploaded will result in an error.
 - file_md5: the md5 of a file using [nodejs-md5](https://github.com/heinst/nodejs-md5). Regardless the filename if it is the same file, it will give the same md5.
+
+### Decoding a Blurhash
+Send POST request with Content-Type: multipart/form-data;
+| Key | Value | Required | Description |
+| --- | --- | --- | --- |
+| blurhash | String | YES | Blurhash string |
+| width | Number | YES | width of the image |
+| height | Number | YES | height of the image |
+```json
+{
+  "decoded": "data:image/jpeg;base64,..."
+}
+```
